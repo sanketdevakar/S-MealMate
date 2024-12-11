@@ -1,0 +1,163 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Mate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Imprima&family=Lobster&family=Teko:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=progress_activity" />    {% tailwind_css %}
+</head>
+<body class="bg-darkgreen p-12 flex justify-center items-center">
+    <div class="bg-mddarkgreen rounded-2xl p-6">
+        <!-- Back to Home Link -->
+        <div class="mb-10">
+            <div><a href={% url "home" %} class="bg-pinkskin rounded-full font-bold text-4xl py-1 hover:bg-darkpinkskin">&nbsp;&larr;&nbsp;</a></div>
+        </div>
+
+        <!-- HEADING -->
+        <h1 class="font-lobster font-medium text-4xl text-orangeskin">Add New Meal</h1>
+        <p class="text-orangeskin font-imprima">Cook smarter, not harder.</p>
+        
+        <!-- INPUT FORM -->
+        <div class="mt-10">
+            <form id="mealForm" method="POST" class="flex flex-col gap-4 font-imprima">
+                {% csrf_token %}
+
+                <div class="flex flex-col justify-startitems-center">
+                    <label class="text-offwhite">Cusine</label>
+                    <input type="text" name="cuisine"></input>
+                </div>
+
+                <div class="flex flex-col justify-startitems-center">
+                    <label class="text-offwhite">Calories</label>
+                    <input type="number" name="calorieCount"></input>
+                </div>
+
+                <div class="flex flex-col justify-startitems-center">
+                    <label for="ingredientInput" class="text-offwhite">Ingredient</label>
+                    <input type="text" id="ingredientInput" placeholder="type & hit Enter &#9166;">
+                    <ul id="ingredientList" class="text-offwhite"></ul> <!-- List to stack ingredients -->
+                </div>
+                
+                <!-- Hidden input to store all ingredients as a comma-separated list -->
+                <input type="hidden" name="ingredients" id="ingredientsData">
+                
+                <!-- AI Generation Button -->                
+                <button type="submit" class="bg-pinkskin rounded-xl font-bold font-teko text-darkgreen text-lg p-2 hover:bg-darkpinkskin">Generate</button>
+            </form>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="mt-8 mx-auto">
+                <img src="{% static 'img/progress.png' %}" alt="Loading..." class="mx-auto animate-spin" style="width:18px">
+            </div>
+            
+        </div>
+
+        <div class="text-offwhite mt-10">
+            {% if yourRecipes == "Invalid question." %}
+                <div class="text-offwhite text-2xl">! Sorry, An error occured. Enter details and hit generate again !</div>
+            {% elif yourRecipes %}
+                <h2 class="font-lobster font-medium text-4xl text-orangeskin">Your Recipes :</h2>
+                {% for recipe in yourRecipes.recipes %}
+                    <div class="recipe">
+                        <br /><br />
+                        <h3 class='font-teko text-3xl'>{{ recipe.name }} &#40;{{ recipe.calories }} cal&#41;</h3>
+                        <p><em>{{ recipe.description }}</em></p>
+                        
+                        <br />
+                        <div class="ingredients">
+                            <h4>Ingredients:</h4>
+                            <ul>
+                                {% for ingredient in recipe.ingredients %}
+                                    <li>{{ ingredient }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <br />
+                        <div class="instructions">
+                            <h4>Instructions:</h4>
+                            <ol>
+                                {% for instruction in recipe.instructions %}
+                                    <li>{{ instruction }}</li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ingredientInput = document.getElementById('ingredientInput');
+            const ingredientList = document.getElementById('ingredientList');
+            const ingredientsData = document.getElementById('ingredientsData');
+
+            const mealForm = document.getElementById('mealForm');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            let ingredients = []; // Array to store all entered ingredients
+            
+            ingredientInput.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Prevent form submission
+                    
+                    const ingredient = ingredientInput.value.trim();
+                    
+                    if (ingredient) {
+                        ingredients.push(ingredient); // Add to ingredients array
+                        updateIngredientList();
+                        ingredientInput.value = ''; // Clear input field
+                    }
+                }
+            });
+            
+            function updateIngredientList() {
+                // Clear existing list items
+                ingredientList.innerHTML = '';
+                
+                // Display each ingredient as a list item
+                ingredients.forEach((ing, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = ing;
+                    
+                    // Add a remove button for each ingredient
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'x';
+                    removeButton.style.marginLeft = '10px';
+                    removeButton.addEventListener('click', () => {
+                        ingredients.splice(index, 1);
+                        updateIngredientList();
+                    });
+                    
+                    li.appendChild(removeButton);
+                    ingredientList.appendChild(li);
+                });
+                
+                // Update hidden input with comma-separated ingredients
+                ingredientsData.value = ingredients.join(',');
+            }
+
+            // Show loading spinner when the form is submitted
+            mealForm.addEventListener('submit', function () {
+                loadingSpinner.classList.remove('hidden'); // Display the loading spinner
+            });
+
+            // Hide loading spinner once the page loads (optional, in case page reloads)
+            window.addEventListener('load', function () {
+                loadingSpinner.classList.add('hidden'); // Hide the spinner after loading
+            });
+        });
+    </script>
+</body>
+</html>
