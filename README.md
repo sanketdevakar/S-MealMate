@@ -1,6 +1,6 @@
 # Project Name: **MealMate**
 
-<img width="1822" alt="Screenshot 2024-11-07 at 12 35 23 PM" src="https://github.com/user-attachments/assets/c0dd307a-6214-4456-b2c0-4fd811599c9e">
+<img width="1822" alt="Screenshot 2024-11-07 at 12 35 23 PM" src="C:\Users\Sanket\Desktop\Sample folder\HomePage.png">
 
 ## Table of Contents
 
