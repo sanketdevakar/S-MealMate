@@ -57,12 +57,12 @@ Follow these steps to get your project up and running locally.
 
 4. Activate the virtual environment to isolate your project dependencies:
    ```bash
-   source venv/bin/activate
+   source venv\Scripts\activate
    ```
 
 5. Clone the `mealMate` repository from GitHub:
    ```bash
-   git clone https://github.com/Joe-26/mealMate.git
+   git clone https://github.com/sanketdevakar/S-MealMate.git
    ```
 
 6. Change to the `mealMate` directory:
